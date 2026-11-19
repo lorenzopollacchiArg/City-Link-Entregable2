@@ -22,7 +22,7 @@ import modelo.Vehiculo;
 
 import java.util.Scanner;
         
-public class Entregable1 {
+public class Entregable2 {
     
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
@@ -457,33 +457,34 @@ public class Entregable1 {
     }
 
     private static void listaPrecios(CityLink sistema, Scanner scanner) {
+    System.out.println("LISTA DE PEDIDOS, COSTOS Y TIEMPOS");
+    Pedido[] pedidos = sistema.getPedidos();
+    int total = sistema.getCantidadPedidos();
+    
+    if (total == 0) {
+        System.out.println("No hay pedidos registrados en el sistema.");
+        return;
+    }
+    
+    // Eliminamos el Scanner para kmRef. Ya no hace falta preguntar.
+    
+    for (int i = 0; i < total; i++) {
+        Pedido p = pedidos[i];
+        System.out.println("Pedido Id: " +  p.getId() + " | Destino: " +  p.getDestino()+ " | Estado: "+ p.obtenerEstadoActual());
         
-        System.out.println("LISTA DE PEDIDOS, COSTOS Y TIEMPOS");
-        Pedido[] pedidos = sistema.getPedidos();
-        int total = sistema.getCantidadPedidos();
-        
-        if (total == 0) {
-            System.out.println("No hay pedidos registrados en el sistema.");
-            return;
-        }
-        
-        System.out.println("Ingrese velocidad promedio o distancia de referencia en km para calcular el tiempo estimado (ej= 10):");
-        double kmRef = Double.parseDouble(scanner.nextLine().trim());
-        
-        for (int i = 0; i < total; i++) {
-            Pedido p = pedidos[i];
-            System.out.println("Pedido Id: " +  p.getId() + " | Destino: " +  p.getDestino()+ " | Estado: "+ p.obtenerEstadoActual());
+        if (p.getVehiculoAsignado() != null) {
+            double costo = p.calcularCosto(p.getVehiculoAsignado());
             
-            if (p.getVehiculoAsignado() != null) {
-                double costo = p.calcularCosto(p.getVehiculoAsignado());
-                double tiempo = p.getVehiculoAsignado().calcularTiempoEntrega(kmRef);
-                System.out.println(" Costo estimado: " + costo + "$ | Tiempo estimado (" + kmRef + " km): " +tiempo + " horas (Vehículo: " + p.getVehiculoAsignado().getPatente() +")");
-            } 
-            else {
-                System.out.println("Sin vehículo asignado");
-            }
+            // LA MAGIA: Le pasamos directamente la distancia del pedido al vehículo
+            double tiempo = p.getVehiculoAsignado().calcularTiempoEntrega(p.getDistanciaKm());
+            
+            System.out.println(" Costo estimado: $" + costo + " | Tiempo estimado (" + p.getDistanciaKm() + " km): " + tiempo + " minutos (Vehículo: " + p.getVehiculoAsignado().getPatente() +")");
+        } 
+        else {
+            System.out.println("Sin vehículo asignado");
         }
     }
+}
 
     private static void consutarEstadoRastreable(CityLink sistema, Scanner scanner) {
         System.out.println("CONSULTAR ESTADO RASTREABLE");

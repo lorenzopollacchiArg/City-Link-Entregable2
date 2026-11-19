@@ -1,7 +1,7 @@
 
 package modelo;
 import excepciones.PedidoInvalidoException;
-
+import java.time.LocalDateTime;
 
 public class PedidoUrgente extends Pedido {
 
@@ -9,7 +9,7 @@ public class PedidoUrgente extends Pedido {
     }
 
     public PedidoUrgente(int id, double distanciaKm, double pesoKg, Cliente cliente, String destino) throws PedidoInvalidoException {
-        super(id, distanciaKm, pesoKg, cliente, destino);
+        super(id, distanciaKm, pesoKg, cliente, destino, LocalDateTime.now());
     }
     
     @Override

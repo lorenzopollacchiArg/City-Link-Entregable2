@@ -8,155 +8,49 @@ import modelo.Repartidor;
 import excepciones.AlmacenamientoLlenoException;
 import excepciones.CapacidadExcedidaException;
 import excepciones.ClienteNoEncontradoException;
-
+import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Queue;
+import java.util.TreeMap;
+import modelo.PedidoUrgente;
+import excepciones.PedidoInvalidoException;
 
 public class CityLink {
-    private static final int MAX_CLIENTES = 50;
-    private static final int MAX_PEDIDOS = 100;
-    private static final int MAX_REPARTIDORES = 10; 
-    private Cliente[] clientes;
-    private Pedido[] pedidos;
-    private Repartidor[] repartidores;
-    private int cantidadClientes; 
-    private int cantidadPedidos;
-    private int cantidadRepartidores; 
-    
-    
-  
-   public CityLink(){
-       this.clientes = new Cliente[MAX_CLIENTES];
-       this.pedidos = new Pedido[MAX_PEDIDOS];
-       this.repartidores = new Repartidor[MAX_REPARTIDORES];
-       this.cantidadClientes = 0;
-       this.cantidadPedidos = 0;
-       this.cantidadRepartidores = 0;
-    }
-   
-   public void agregarCliente(Cliente client) throws AlmacenamientoLlenoException{
-       if (client == null){
-           throw new IllegalArgumentException("El cliente no puede estar vacio");
-       }
-       if(this.cantidadClientes >= MAX_CLIENTES){
-           throw new AlmacenamientoLlenoException("La capacidad maxima de los clientes supero el maximo");
-       }
-       this.clientes[this.cantidadClientes++] = client;
-   }
-   
-   public void agregarPedido(Pedido order) throws AlmacenamientoLlenoException {
-       if(order == null){
-           throw new IllegalArgumentException("El pedido no puede estar vacio");
-       }
-       
-       if(this.cantidadPedidos >= MAX_PEDIDOS){
-           throw new AlmacenamientoLlenoException("La capacidad maxima de los clientes supero el maximo");
-       }
-       
-       this.pedidos[this.cantidadPedidos++] = order;
-   }
-   
-   public void agregarRepartidor(Repartidor dealer )throws AlmacenamientoLlenoException{
-     if (dealer == null){
-        throw new IllegalArgumentException("El repartidor no puede estar vacio");
-    }
-     if (this.cantidadRepartidores >= MAX_REPARTIDORES){
-          throw new AlmacenamientoLlenoException("La capacidad maxima de los repartidores supero el maximo");
-     }
-     this.repartidores[this.cantidadRepartidores++] = dealer; 
-   }
-   
-   public void asignarPedido(Pedido p, Vehiculo v) throws CapacidadExcedidaException {
-        if (p == null || v == null) {
-            throw new IllegalArgumentException("El pedido y el vehículo no pueden ser nulos.");
-        }
-        if (!v.puedeTransportar(p)) {
-            throw new CapacidadExcedidaException("El vehículo no puede transportar el pedido (excede peso o es frágil).");
-        }
-        p.setVehiculoAsignado(v);
-    }
-   
-   public void asignarPedido(Pedido order) throws CapacidadExcedidaException{
-       
-       if (order == null){
-           throw new CapacidadExcedidaException("El pedido no puede estar vacio");
-       }
-       
-     
-       
-       boolean asignado = false;
-       
-        for (int i = 0; i < this.cantidadRepartidores; i++) {
-            Vehiculo v = this.repartidores[i].getVehiculoAsignado();
-            if (v != null && v.puedeTransportar(order)) {
-                order.setVehiculoAsignado(v);
-                this.repartidores[i].asignarPedido(order);
-                asignado = true;
-                break;
-            }
-        }
-        if (!asignado) {
-            throw new CapacidadExcedidaException("No hay ningun repartidor disponible con un vehiculo para este pedido.");
-        }
-   }
-   
-   
-   public boolean eliminarPedido(int id){
-       int posicion = -1;
-       
-       // buscar la posision del pedido por el id
-       
-       for(int i=0; i < this.cantidadPedidos; i++){
-           if(this.pedidos[i].getId() == id){
-               posicion = i ;
-               break;
-           }
-       }
-       
-       if (posicion == -1){
-           return false;
-       }
-       // corrimiento hacia la izquierda para no dejar huecos
-       
-       for(int i= posicion; i < this.cantidadPedidos; i++ ){
-           this.pedidos[i] = this.pedidos[i+1];
-       }
-      // se limpia la ultima casilla y se resta el contador
-       this.pedidos[this.cantidadPedidos - 1] = null;
-       this.cantidadPedidos--;
-       return true;
-       
-   }
-   
-   public Pedido buscarPedido(int id) {
-        for (int i=0; i < this.cantidadPedidos; i++) {
-            
-            if (this.pedidos[i].getId() == id) {
-                
-                return this.pedidos[i];
-            }
-        }
-        return null;
+
+    private TreeMap<Integer, Cliente> clientes;
+    private ArrayList<Pedido> pedidos;
+    private ArrayList<Repartidor> repartidores;
+    private Queue<Pedido> colaUrgente;
+    private Queue<Pedido> colaNormal_Fragil;
+    private Deque<String> EliminarPila;
+
+    public CityLink() {
+        this.clientes = new TreeMap<>();
+        this.pedidos = new ArrayList<>();
+        this.repartidores = new ArrayList<>();
+        this.colaUrgente = new ArrayDeque<>();
+        this.colaNormal_Fragil = new ArrayDeque<>();
+        this.EliminarPila = new ArrayDeque<>();
     }
 
-    public Repartidor buscarRepartidor(String legajo) {
-        if (legajo == null){
-            return null;
+    // Metodos clientes con arbol treeMap
+
+    public void agregarCliente(Cliente client) throws AlmacenamientoLlenoException {
+        if (client == null) {
+            throw new IllegalArgumentException("El cliente no puede estar vacio");
         }
-        for (int i = 0; i < this.cantidadRepartidores; i++) {
-            
-            if (this.repartidores[i].getLegajo().equalsIgnoreCase(legajo.trim())) {
-                return this.repartidores[i];
-            }
-         }
-        
-        return null;
+
+        this.clientes.put(client.getCodigo(), client);
+
     }
-    
+
     public Cliente buscarCliente(int codigo) throws ClienteNoEncontradoException {
-        for (int i = 0; i < this.cantidadClientes; i++) {
-            if (this.clientes[i].getCodigo() == codigo) {
-                return this.clientes[i];
-            }
+
+        if (this.clientes.containsKey(codigo)) {
+            return this.clientes.get(codigo);
         }
+
         throw new ClienteNoEncontradoException("No se encontró ningún cliente con el código: " + codigo);
     }
 
@@ -164,44 +58,248 @@ public class CityLink {
         if (nombre == null) {
             throw new IllegalArgumentException("El nombre de búsqueda no puede ser nulo.");
         }
-        for (int i = 0; i < this.cantidadClientes; i++) {
-            if (this.clientes[i].getNombre().equalsIgnoreCase(nombre.trim())) {
-                return this.clientes[i];
+        for (Cliente c : this.clientes.values()) {
+            if (c.getNombre().equalsIgnoreCase(nombre.trim())) {
+                return c;
             }
+
         }
         throw new ClienteNoEncontradoException("No se encontró ningún cliente con el nombre: " + nombre);
     }
-    
-    public Cliente[] getClientes() {
-        return clientes;
+
+    public void eliminarCliente(int codigo) throws ClienteNoEncontradoException {
+        if (!this.clientes.containsKey(codigo)) {
+            throw new ClienteNoEncontradoException("No se encontro ningun cliente con el codigo: " + codigo);
+        }
+        this.clientes.remove(codigo);
     }
 
-    
-    public Pedido[] getPedidos() {
-        return pedidos;
+    // metodos para repartidores
+
+    public void agregarRepartidor(Repartidor dealer) throws AlmacenamientoLlenoException {
+        if (dealer == null) {
+            throw new IllegalArgumentException("El repartidor no puede estar vacio");
+        }
+        this.repartidores.add(dealer);
     }
 
-    public Repartidor[] getRepartidores() {
-        return repartidores;
+    public Repartidor buscarRepartidor(String legajo) {
+        if (legajo == null) {
+            return null;
+        }
+        for (Repartidor r : this.repartidores) {
+            if (r.getLegajo().equalsIgnoreCase(legajo.trim())) {
+                return r;
+            }
+        }
+
+        return null;
     }
-   
-    public int getCantidadPedidos(){
-        return cantidadPedidos; 
+
+    public void asignarPedido(Pedido order) throws CapacidadExcedidaException {
+
+        if (order == null) {
+            throw new CapacidadExcedidaException("El pedido no puede estar vacio");
+        }
+
+        boolean asignado = false;
+
+        for (Repartidor r : this.repartidores) {
+            Vehiculo v = r.getVehiculoAsignado();
+            if (v != null && v.puedeTransportar(order)) {
+                order.setVehiculoAsignado(v);
+                r.asignarPedido(order);
+                asignado = true;
+                break;
+            }
+
+        }
+        if (!asignado) {
+            throw new CapacidadExcedidaException(
+                    "No hay ningun repartidor disponible con un vehiculo para este pedido.");
+        }
     }
-    
-    public int getCantidadRepartidores(){
-        return cantidadRepartidores;
-   }
-    
-   public int getCantidadClientes(){
-       return cantidadClientes; 
-   }
-   
- 
-    
-    
-    
-    
-    
-    
+
+    // metodos para pedidos
+
+    public Pedido buscarPedido(int id) {
+
+        for (Pedido p : this.pedidos) {
+            if (p.getId() == id) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public boolean eliminarPedido(int id) {
+
+        Pedido p = buscarPedido(id);
+
+        if (p == null) {
+            return false;
+        }
+
+        this.pedidos.remove(p);
+        this.colaUrgente.remove(p);
+        this.colaNormal_Fragil.remove(p);
+        return true;
+
+    }
+
+    public void agregarPedido(Pedido order) throws AlmacenamientoLlenoException, PedidoInvalidoException {
+        if (order == null) {
+            throw new IllegalArgumentException("El pedido no puede estar vacio");
+        }
+
+        if (buscarPedido(order.getId()) != null) {
+            throw new PedidoInvalidoException("El pedido ya existe");
+        }
+
+        this.pedidos.add(order);
+
+        if (order instanceof PedidoUrgente) {
+
+            this.colaUrgente.offer(order);
+
+        } else {
+            this.colaNormal_Fragil.offer(order);
+        }
+
+        this.EliminarPila.push("pedido alta:  " + order.getId());
+
+    }
+
+    public void asignarPedido(Pedido p, Vehiculo v) throws CapacidadExcedidaException {
+        if (p == null || v == null) {
+            throw new IllegalArgumentException("El pedido y el vehículo no pueden ser nulos.");
+        }
+        if (!v.puedeTransportar(p)) {
+            throw new CapacidadExcedidaException(
+                    "El vehículo no puede transportar el pedido (excede peso o es frágil).");
+        }
+        p.setVehiculoAsignado(v);
+    }
+
+    public void atenderSigPedido() throws PedidoInvalidoException, CapacidadExcedidaException {
+
+        Pedido p = null;
+
+        if (!this.colaUrgente.isEmpty()) {
+            p = this.colaUrgente.poll();
+
+        } else {
+            if (!this.colaNormal_Fragil.isEmpty()) {
+                p = this.colaNormal_Fragil.poll();
+            }
+        }
+
+        if (p == null) {
+            throw new PedidoInvalidoException("No se encontro ningun pedido");
+        }
+
+        asignarPedido(p);
+        p.cambiarEstado("En camino");
+        this.EliminarPila.push("Atender: " + p.getId());
+
+    }
+
+    public void registrarEntrega(int idPedido) throws PedidoInvalidoException {
+        Pedido p = buscarPedido(idPedido);
+        if (p == null) {
+            throw new PedidoInvalidoException("No se encontro ningun pedido con el id: " + idPedido);
+        }
+
+        Repartidor repartidorAsignado = null;
+
+        for (Repartidor r : this.repartidores) {
+            if (r.getPedidosAsignados().contains(p)) {
+                repartidorAsignado = r;
+                break;
+
+            }
+        }
+
+        if (repartidorAsignado == null) {
+            throw new PedidoInvalidoException("El repartidor no existe o no tiene pedidos asignados");
+        }
+
+        repartidorAsignado.registrarEntregas(p);
+
+        this.EliminarPila.push("Entrega: " + p.getId());
+
+    }
+
+    public String eliminarUltimaOperacion() throws PedidoInvalidoException {
+
+        if (this.EliminarPila.isEmpty()) {
+            throw new PedidoInvalidoException("No hay operaciones para eliminar");
+
+        }
+
+        String operacion = this.EliminarPila.pop();
+
+        String[] partes = operacion.split(":");
+
+        String tipo = partes[0].trim();
+        int id = Integer.parseInt(partes[1].trim());
+
+        Pedido p = buscarPedido(id);
+
+        if ("pedido alta".equals(tipo)) {
+            eliminarPedido(id);
+        } else if ("atender".equalsIgnoreCase(tipo)) {
+            p.setEstado("Pendiente");
+            p.setVehiculoAsignado(null);
+
+            for (Repartidor r : this.repartidores) {
+                r.getPedidosAsignados().remove(p);
+            }
+
+            if (p instanceof PedidoUrgente) {
+                this.colaUrgente.offer(p);
+
+            }
+
+            else {
+                this.colaNormal_Fragil.offer(p);
+            }
+        }
+
+        if ("entrega".equalsIgnoreCase(tipo)) {
+            p.setEstado("En camino");
+
+            for (Repartidor r : this.repartidores) {
+                r.getHistorialPedidos().remove(p);
+            }
+        }
+
+        return "Se elimino: " + operacion;
+
+    }
+
+    public TreeMap<Integer, Cliente> getClientes() {
+        return this.clientes;
+    }
+
+    public ArrayList<Pedido> getPedidos() {
+        return this.pedidos;
+    }
+
+    public ArrayList<Repartidor> getRepartidores() {
+        return this.repartidores;
+    }
+
+    public int getCantidadPedidos() {
+        return pedidos.size();
+    }
+
+    public int getCantidadRepartidores() {
+        return repartidores.size();
+    }
+
+    public int getCantidadClientes() {
+        return clientes.size();
+    }
+
 }

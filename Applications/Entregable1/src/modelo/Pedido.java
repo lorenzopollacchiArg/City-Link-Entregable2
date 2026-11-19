@@ -1,10 +1,11 @@
 
 package modelo;
+
 import excepciones.PedidoInvalidoException;
 import excepciones.EstadoInvalidoException;
+import java.time.LocalDateTime;
 
-
-public abstract class Pedido implements Rastreable ,Facturable { 
+public abstract class Pedido implements Rastreable, Facturable {
     private int id;
     private double distanciaKm;
     private double pesoKg;
@@ -12,60 +13,97 @@ public abstract class Pedido implements Rastreable ,Facturable {
     private Cliente cliente;
     private String estado;
     private String destino;
+    private LocalDateTime fecha;
+    private String turno;
 
     public Pedido() {
         this.estado = "Pendiente";
     }
-    
-   public Pedido(int id, double distanciaKm, double pesoKg, Cliente cliente, String destino) 
+
+    public Pedido(int id, double distanciaKm, double pesoKg, Cliente cliente, String destino, LocalDateTime fecha)
             throws PedidoInvalidoException {
         setId(id);
         setDistanciaKm(distanciaKm);
         setPesoKg(pesoKg);
         setCliente(cliente);
         setDestino(destino);
-        this.estado = "PENDIENTE"; 
-        this.vehiculoAsignado = null; 
+        this.estado = "PENDIENTE";
+        this.vehiculoAsignado = null;
+        setFecha(fecha);
+
     }
-    
-    
-    public Cliente getCliente(){
-        return cliente; 
+
+    public Cliente getCliente() {
+        return cliente;
     }
-    
+
     public void setCliente(Cliente cliente) throws PedidoInvalidoException {
-        if (cliente == null){
+        if (cliente == null) {
             throw new PedidoInvalidoException("El cliente no debe estar vacio");
         }
-        this.cliente = cliente; 
+        this.cliente = cliente;
     }
-    
-    public String getDestino(){
+
+    public String getDestino() {
         return destino;
     }
-    
-    public void setDestino(String destino)throws PedidoInvalidoException{
-        if (destino == null){
+
+    public void setDestino(String destino) throws PedidoInvalidoException {
+        if (destino == null) {
             throw new PedidoInvalidoException("El destino no debe estar vacio");
-        }  
+        }
         this.destino = destino;
     }
-    
-    public String getEstado(){
-        return estado; 
+
+    public String getEstado() {
+        return estado;
     }
-   
-    
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
 
     public int getId() {
         return id;
     }
 
     public void setId(int id) throws PedidoInvalidoException {
-        if (id <= 0){
-           throw new PedidoInvalidoException("El id no debe estar vacio");
+        if (id <= 0) {
+            throw new PedidoInvalidoException("El id no debe estar vacio");
         }
         this.id = id;
+    }
+
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDateTime fecha) throws PedidoInvalidoException {
+        if (fecha == null) {
+            throw new PedidoInvalidoException("La fecha no debe estar vacia");
+        }
+        if (fecha.getHour() < 13) {
+            turno = "Mañana";
+        } else {
+            turno = "Tarde";
+        }
+
+        this.fecha = fecha;
+    }
+
+    public String getTurno() {
+        return turno;
+    }
+
+    public void setTurno(String turno) throws PedidoInvalidoException {
+        if (turno == null) {
+            throw new PedidoInvalidoException("El turno no debe estar vacio");
+
+        }
+        if (!"manana".equalsIgnoreCase(turno) && !"Tarde".equalsIgnoreCase(turno)) {
+            throw new PedidoInvalidoException("El turno debe ser manana o Tarde");
+        }
+        this.turno = turno;
     }
 
     public double getDistanciaKm() {
@@ -73,72 +111,72 @@ public abstract class Pedido implements Rastreable ,Facturable {
     }
 
     public void setDistanciaKm(double distanciaKm) throws PedidoInvalidoException {
-        if (distanciaKm <= 0){
-           throw new PedidoInvalidoException("La distancia debe ser mayor a 0");
+        if (distanciaKm <= 0) {
+            throw new PedidoInvalidoException("La distancia debe ser mayor a 0");
         }
         this.distanciaKm = distanciaKm;
     }
 
-    public Vehiculo getVehiculoAsignado(){
+    public Vehiculo getVehiculoAsignado() {
         return vehiculoAsignado;
     }
 
     public void setVehiculoAsignado(Vehiculo vehiculoAsignado) {
         this.vehiculoAsignado = vehiculoAsignado;
     }
-    
-    public double getPesoKg(){
+
+    public double getPesoKg() {
         return pesoKg;
     }
-    
-    public void setPesoKg(double pesoKg)throws PedidoInvalidoException{
-        if (pesoKg <= 0 ){
-               throw new PedidoInvalidoException("El peso debe ser mayor a 0");
+
+    public void setPesoKg(double pesoKg) throws PedidoInvalidoException {
+        if (pesoKg <= 0) {
+            throw new PedidoInvalidoException("El peso debe ser mayor a 0");
         }
-        
-        this.pesoKg = pesoKg; 
+
+        this.pesoKg = pesoKg;
     }
-    
-    public void cambiarEstado( String nuevoEstado){
-        if (nuevoEstado == null){
+
+    public void cambiarEstado(String nuevoEstado) {
+        if (nuevoEstado == null) {
             throw new EstadoInvalidoException("El estado destino no puede estar vacio");
         }
-        
-        if ("Pendiente".equalsIgnoreCase(this.estado)){
-            if("En Camino".equalsIgnoreCase(nuevoEstado) || "Cancelado".equalsIgnoreCase(nuevoEstado)){
-                this.estado = nuevoEstado.toUpperCase(); 
+
+        if ("Pendiente".equalsIgnoreCase(this.estado)) {
+            if ("En Camino".equalsIgnoreCase(nuevoEstado) || "Cancelado".equalsIgnoreCase(nuevoEstado)) {
+                this.estado = nuevoEstado.toUpperCase();
             } else {
                 throw new EstadoInvalidoException("Desde pendiente solo puede cancelarse o salir en camino");
             }
-        }
-        else if ("En Camino".equalsIgnoreCase(this.estado)){
-           if ("Entregado".equalsIgnoreCase(nuevoEstado) || "Cancelado".equalsIgnoreCase(nuevoEstado)){
-            this.estado = nuevoEstado.toUpperCase();     
+        } else if ("En Camino".equalsIgnoreCase(this.estado)) {
+            if ("Entregado".equalsIgnoreCase(nuevoEstado) || "Cancelado".equalsIgnoreCase(nuevoEstado)) {
+                this.estado = nuevoEstado.toUpperCase();
             } else {
-               throw new EstadoInvalidoException("Desde En camino solo se puede pasar a entregado  o cancelado");
+                throw new EstadoInvalidoException("Desde En camino solo se puede pasar a entregado  o cancelado");
             }
         }
-        
-        else if ("Entregado".equalsIgnoreCase(this.estado) || "Cancelado".equalsIgnoreCase(this.estado)){
-            
-          throw new EstadoInvalidoException("El pedido ya esta " + this.estado + " y no permite mas cambios de estado");  
-        } else  {
+
+        else if ("Entregado".equalsIgnoreCase(this.estado) || "Cancelado".equalsIgnoreCase(this.estado)) {
+
+            throw new EstadoInvalidoException(
+                    "El pedido ya esta " + this.estado + " y no permite mas cambios de estado");
+        } else {
             throw new EstadoInvalidoException("Estado actual desconocido: " + this.estado);
         }
-        
-        
+
     }
+
     public abstract double calcularCosto(Vehiculo vehiculo);
-    
+
     public abstract boolean esFragil();
-    
+
     @Override
-    
-    public String obtenerEstadoActual(){
-        return this.estado; 
+
+    public String obtenerEstadoActual() {
+        return this.estado;
     }
-    
-    @Override 
-    
-    public abstract double  calcularImporte();
+
+    @Override
+
+    public abstract double calcularImporte();
 }
