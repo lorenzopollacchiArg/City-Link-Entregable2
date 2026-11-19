@@ -15,6 +15,7 @@ import java.util.Queue;
 import java.util.TreeMap;
 import modelo.PedidoUrgente;
 import excepciones.PedidoInvalidoException;
+import excepciones.SinPedidosPendientesException;
 
 public class CityLink {
 
@@ -181,7 +182,7 @@ public class CityLink {
         p.setVehiculoAsignado(v);
     }
 
-    public void atenderSigPedido() throws PedidoInvalidoException, CapacidadExcedidaException {
+    public void atenderSigPedido() throws SinPedidosPendientesException, CapacidadExcedidaException {
 
         Pedido p = null;
 
@@ -195,7 +196,7 @@ public class CityLink {
         }
 
         if (p == null) {
-            throw new PedidoInvalidoException("No se encontro ningun pedido");
+            throw new SinPedidosPendientesException("No hay pedidos pendientes en las colas para atender.");
         }
 
         asignarPedido(p);
@@ -230,10 +231,10 @@ public class CityLink {
 
     }
 
-    public String eliminarUltimaOperacion() throws PedidoInvalidoException {
+    public String eliminarUltimaOperacion() throws SinPedidosPendientesException {
 
         if (this.EliminarPila.isEmpty()) {
-            throw new PedidoInvalidoException("No hay operaciones para eliminar");
+            throw new SinPedidosPendientesException("La pila esta vacia: no hay operaciones para deshacer.");
 
         }
 
