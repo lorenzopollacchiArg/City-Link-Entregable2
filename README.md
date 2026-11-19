@@ -92,6 +92,9 @@ Abrir el proyecto y ejecutar la clase principal `app.Entregable2`. El sistema in
 ---
 
 ## Declaración de uso de IA
-- **Herramienta utilizada:** Antigravity / Gemini.
-- **Para qué se utilizó:** Guía paso a paso para pasar de arreglos a estructuras dinámicas de `java.util`, explicación de los algoritmos de ordenamiento y búsqueda, corrección de errores de sintaxis y ayuda para redactar la documentación del README.
+
+- **Herramienta utilizada:** Gemini
+- 
+- **Para qué se utilizó:** En este proyecto usamos la IA como un copiloto organizativo y técnico. En primer lugar, la utilizamos al inicio para armar un to-do list detallado, lo que nos permitió organizar las tareas por etapas y llevar un seguimiento claro de lo que íbamos haciendo sin perdernos ni confundirnos. Después, durante el desarrollo, recurrimos a ella principalmente para consultar teoría —por ejemplo, para afianzar cómo funcionan las estructuras dinámicas o los algoritmos de búsqueda y ordenamiento— y para analizar errores puntuales o casos borde cuando algo fallaba y para poder dejar este readme prolijo recurrimos a la ia para averigurar algunos metodos para que quede prolijo y parecido a un documento de google (goggle docs).
+- 
 - **Cómo se verificó el resultado:** Compilamos el proyecto completo con `javac` y probamos manualmente por consola cada una de las 10 opciones del menú (tanto casos normales como casos borde) revisando línea por línea el código para poder explicarlo en la defensa oral.
