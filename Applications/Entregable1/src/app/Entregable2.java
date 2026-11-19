@@ -9,7 +9,6 @@ import excepciones.CapacidadExcedidaException;
 import excepciones.ClienteNoEncontradoException;
 import excepciones.EstadoInvalidoException;
 import excepciones.PedidoInvalidoException;
-import excepciones.SinPedidosPendientesException;
 import gestor.CityLink;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,6 +34,7 @@ public class Entregable2 {
         CityLink sistema = new CityLink();
 
         ejecutarPrecarga(sistema);
+
         int opcion = 0;
 
         do {
@@ -89,8 +89,6 @@ public class Entregable2 {
                 System.out.println("\n[ERROR DE ESTADO] " + e.getMessage());
             } catch (PedidoInvalidoException e) {
                 System.out.println("\n[ERROR DE PEDIDO] " + e.getMessage());
-            } catch (SinPedidosPendientesException e) {
-                System.out.println("\n[ESTRUCTURA VACIA] " + e.getMessage());
             } catch (Exception e) {
                 System.out.println("Error general: " + e.getMessage());
             } finally {
@@ -177,7 +175,7 @@ public class Entregable2 {
         }
     }
 
-    // opcion 1 Gestion de Clientes
+    // OPCION 1: Gestion de Clientes
     private static void gestionarClientes(CityLink sistema, Scanner scanner)
             throws AlmacenamientoLlenoException, ClienteNoEncontradoException {
         System.out.println("--- GESTION DE CLIENTES ---");
@@ -259,7 +257,7 @@ public class Entregable2 {
         }
     }
 
-    // opcion 2 esGestion de Repartidores
+    // opcion esGestion de Repartidores
     private static void gestionarRepartidores(CityLink sistema, Scanner scanner) throws AlmacenamientoLlenoException {
         System.out.println("GESTION DE REPARTIDORES");
         System.out.println("1- Registrar repartidor con vehiculo");
@@ -332,7 +330,7 @@ public class Entregable2 {
         System.out.println("Repartidor registrado exitosamente");
     }
 
-    // opcion 3 Registrar un Pedido
+    // OPCION 3: Registrar un Pedido
     private static void registrarPedido(CityLink sistema, Scanner scanner)
             throws AlmacenamientoLlenoException, ClienteNoEncontradoException, PedidoInvalidoException {
         System.out.println("REGISTRAR PEDIDO");
@@ -396,14 +394,14 @@ public class Entregable2 {
         System.out.println("Pedido registrado con exito");
     }
 
-    // opcion 4 Atender el siguiente pedido
+    // OPCION 4: Atender el siguiente pedido
     private static void atenderSiguientePedido(CityLink sistema)
-            throws SinPedidosPendientesException, CapacidadExcedidaException {
+            throws PedidoInvalidoException, CapacidadExcedidaException {
         sistema.atenderSigPedido();
         System.out.println("Siguiente pedido de la cola atendido, asignado y puesto En Camino.");
     }
 
-    // opcion 5 Registrar entrega
+    // OPCION 5: Registrar entrega
     private static void registrarEntrega(CityLink sistema, Scanner scanner) throws PedidoInvalidoException {
         System.out.println("REGISTRAR ENTREGA");
         System.out.println("Ingrese el ID del pedido entregado:");
@@ -412,13 +410,13 @@ public class Entregable2 {
         System.out.println("Entrega registrada y agregada al historial del repartidor.");
     }
 
-    // opcion6  Deshacer ultima operacion
-    private static void deshacerUltimaOperacion(CityLink sistema) throws SinPedidosPendientesException {
+    // OPCION 6: Deshacer ultima operacion
+    private static void deshacerUltimaOperacion(CityLink sistema) throws PedidoInvalidoException {
         String msg = sistema.eliminarUltimaOperacion();
         System.out.println(msg);
     }
 
-    // opcion 7 Ordenar y listar pedidos
+    // OPCION 7: Ordenar y listar pedidos
     private static void ordenarYListarPedidos(CityLink sistema, Scanner scanner) {
         ArrayList<Pedido> pedidos = sistema.getPedidos();
         if (pedidos.isEmpty()) {
@@ -445,12 +443,12 @@ public class Entregable2 {
                 break;
         }
 
-        System.out.println("Seleccione algoritmo: 1- Burbuja | 2- Merge Sort");
+        System.out.println("Seleccione algoritmo: 1- Insercion | 2- Merge Sort");
         int opAlgoritmo = Integer.parseInt(scanner.nextLine().trim());
 
         ArrayList<Pedido> ordenados = (opAlgoritmo == 2)
                 ? ordenador.mergeSort(pedidos, criterio)
-                : ordenador.ordenarPorBurbuja(pedidos, criterio);
+                : ordenador.ordenarPorInsercion(pedidos, criterio);
 
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         System.out.println("=== PEDIDOS ORDENADOS POR " + criterio.toUpperCase() + " ===");
@@ -469,7 +467,7 @@ public class Entregable2 {
         }
     }
 
-    // opcion 8 Buscar pedido por codigo (Lineal o Binaria)
+    // OPCION 8: Buscar pedido por codigo (Lineal o Binaria)
 
     private static void buscarPedido(CityLink sistema, Scanner scanner) {
         System.out.println("BUSCAR PEDIDO POR CODIGO");
@@ -506,7 +504,7 @@ public class Entregable2 {
         ArrayList<Pedido> turnoTarde = new ArrayList<>();
 
         for (Pedido p : sistema.getPedidos()) {
-            if (!"Tarde".equalsIgnoreCase(p.getTurno())) {
+            if ("Manana".equalsIgnoreCase(p.getTurno())) {
                 turnoManana.add(p);
             } else {
                 turnoTarde.add(p);
