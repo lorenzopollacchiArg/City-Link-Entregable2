@@ -29,6 +29,7 @@ public class Buscador {
                 return c;
             }
         }
+
         return null;
     }
 
@@ -39,6 +40,7 @@ public class Buscador {
         while (inicio <= fin) {
             int medio = (inicio + fin) / 2;
             Pedido pedidoMedio = ListaOrdenada.get(medio);
+
             if (pedidoMedio.getId() == codigo) {
                 return pedidoMedio;
             } else if (pedidoMedio.getId() < codigo) {
@@ -48,6 +50,7 @@ public class Buscador {
             }
 
         }
+
         return null;
     }
 

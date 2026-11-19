@@ -82,7 +82,7 @@ public abstract class Pedido implements Rastreable, Facturable {
         if (fecha == null) {
             throw new PedidoInvalidoException("La fecha no debe estar vacia");
         }
-        if (fecha.getHour() < 13) {
+        if (fecha.getHour() < 13) { // menor a 13hs
             turno = "Mañana";
         } else {
             turno = "Tarde";

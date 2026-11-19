@@ -186,11 +186,11 @@ public class CityLink {
         Pedido p = null;
 
         if (!this.colaUrgente.isEmpty()) {
-            p = this.colaUrgente.poll();
+            p = this.colaUrgente.poll(); // saca el primero de la cola urgente
 
         } else {
             if (!this.colaNormal_Fragil.isEmpty()) {
-                p = this.colaNormal_Fragil.poll();
+                p = this.colaNormal_Fragil.poll(); // scac el primero de la cola normal o fragil
             }
         }
 
